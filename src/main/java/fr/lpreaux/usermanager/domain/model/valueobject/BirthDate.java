@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Objects;
 
 /**
@@ -40,6 +41,6 @@ public class BirthDate {
     }
 
     public int getAge() {
-        return LocalDate.now().getYear() - this.value.getYear();
+        return Period.between(this.value, LocalDate.now()).getYears();
     }
 }
