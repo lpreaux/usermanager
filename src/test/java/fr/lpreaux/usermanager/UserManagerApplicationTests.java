@@ -1,4 +1,4 @@
-package lpreaux.usermanager;
+package fr.lpreaux.usermanager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
