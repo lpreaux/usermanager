@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    # Use H2 for tests to avoid MariaDB dependency
+    url: jdbc:h2:mem:testdb;MODE=MariaDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: false
+
+  flyway:
+    enabled: false  # Disable for tests, use Hibernate ddl-auto instead
+
+logging:
+  level:
+    fr.lpreaux.usermanager: DEBUG
+    org.springframework.test: INFO
+    org.hibernate.SQL: INFO
