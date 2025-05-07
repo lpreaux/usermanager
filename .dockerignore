@@ -1,0 +1,14 @@
+.git
+.github
+.gitignore
+.idea
+*.iws
+*.iml
+*.ipr
+target
+.mvn/wrapper/maven-wrapper.jar
+README.md
+docker-compose.yml
+dev-env.sh
+.dockerignore
+Dockerfile

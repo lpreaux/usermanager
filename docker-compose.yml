@@ -1,0 +1,85 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    container_name: user-manager-app
+    volumes:
+      - maven-cache:/root/.m2  # Persist Maven cache
+      - ./target:/build/target
+    environment:
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "true"
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/user_manager
+      SPRING_DATASOURCE_USERNAME: user_manager
+      SPRING_DATASOURCE_PASSWORD: user_manager_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: true
+      SPRING_DEVTOOLS_REMOTE_SECRET: mysecret
+    ports:
+      - 8080:8080
+      - 8000:8000
+      - 35729:35729
+    depends_on:
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /build/src
+          ignore:
+            - ./src/test
+        - action: sync
+          path: ./pom.xml
+          target: /build/pom.xml
+        - action: rebuild
+          path: pom.xml
+    networks:
+      - user-manager-network
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11.0
+    container_name: user-manager-db
+    environment:
+      - MARIADB_DATABASE=user_manager
+      - MARIADB_USER=user_manager
+      - MARIADB_PASSWORD=user_manager_password
+      - MARIADB_ROOT_PASSWORD=root_password  # Valeur fixe, pas de variable
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - user-manager-network
+    restart: unless-stopped
+    healthcheck:
+      test: |
+        healthcheck.sh --connect --innodb_initialized && 
+        mariadb -h localhost -u user_manager -puser_manager_password -e "SELECT 1" user_manager
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  adminer:
+    image: adminer:latest
+    container_name: user-manager-adminer
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+    ports:
+      - "8081:8080"
+    networks:
+      - user-manager-network
+    restart: unless-stopped
+    depends_on:
+      - db
+
+networks:
+  user-manager-network:
+    driver: bridge
+
+volumes:
+  mariadb-data:
+  maven-cache:
