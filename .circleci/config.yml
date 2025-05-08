@@ -71,7 +71,7 @@ jobs:
 
       # Upload vers Codecov (pour GitLab)
       - codecov/upload:
-          file: target/site/jacoco/jacoco.xml
+          files: target/site/jacoco/jacoco.xml
           flags: unittests
           upload_name: user-manager-coverage
 
