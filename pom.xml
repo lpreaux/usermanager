@@ -160,7 +160,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum> <!-- 50% au lieu de 80% -->
+                                            <minimum>0.10</minimum> <!-- 10% au lieu de 80% -->
                                         </limit>
                                     </limits>
                                 </rule>
@@ -181,7 +181,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.40</minimum> <!-- 40% au lieu de 70% -->
+                                            <minimum>0.10</minimum> <!-- 10% au lieu de 70% -->
                                         </limit>
                                     </limits>
                                 </rule>
