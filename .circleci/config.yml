@@ -69,11 +69,12 @@ jobs:
           path: target/site/jacoco
           destination: coverage
 
-      # Upload vers Codecov (pour GitLab)
+      # Upload vers Codecov avec paramètres explicites
       - codecov/upload:
-          dir: target/site/jacoco/
+          file: target/site/jacoco/jacoco.xml
           flags: unittests
           upload_name: user-manager-coverage
+          cli_args: "--slug lpreaux/usermanager"
 
 workflows:
   version: 2
