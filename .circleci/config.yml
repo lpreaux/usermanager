@@ -39,7 +39,6 @@ jobs:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
 
-      # Exécuter TOUS les tests avec couverture
       - run:
           name: Run Tests with Coverage
           command: |
@@ -48,17 +47,14 @@ jobs:
           environment:
             MAVEN_OPTS: -Xmx3200m
 
-      # Générer le rapport JaCoCo
       - run:
           name: Generate Coverage Report
           command: ./mvnw jacoco:report
 
-      # Vérifier la couverture (optionnel)
       - run:
           name: Check Coverage
-          command: ./mvnw jacoco:check@jacoco-check || true  # || true pour ne pas bloquer si les seuils ne sont pas atteints
+          command: ./mvnw jacoco:check@jacoco-check || true
 
-      # Exécuter les tests d'intégration
       - run:
           name: Run Integration Tests
           command: |
@@ -73,7 +69,7 @@ jobs:
           path: target/site/jacoco
           destination: coverage
 
-      # Upload vers Codecov
+      # Upload vers Codecov (pour GitLab)
       - codecov/upload:
           file: target/site/jacoco/jacoco.xml
           flags: unittests
