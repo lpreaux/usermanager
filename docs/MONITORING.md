@@ -1,10 +1,10 @@
 # User Manager - Monitoring Dashboard
 
 ## Build Status
-[![CircleCI](https://circleci.com/gh/your-username/user-manager.svg?style=shield)](https://circleci.com/gh/your-username/user-manager)
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/9S3XviWTB3m5oEDfR2c5gT/SgeB5oGNZF8Np1AhpjjwR6/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/9S3XviWTB3m5oEDfR2c5gT/SgeB5oGNZF8Np1AhpjjwR6/tree/main)
 
 ## Code Quality
-[![codecov](https://codecov.io/gh/your-username/user-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/your-username/user-manager)
+[![codecov](https://codecov.io/gitlab/lpreaux/usermanager/graph/badge.svg?token=7D5GDS8H1G)](https://codecov.io/gitlab/lpreaux/usermanager)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=your-project-key&metric=alert_status)](https://sonarcloud.io/dashboard?id=your-project-key)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=your-project-key&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=your-project-key)
 

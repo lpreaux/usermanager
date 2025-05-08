@@ -1,7 +1,7 @@
 # User Manager
 
-[![CircleCI](https://circleci.com/gh/YOUR_USERNAME/user-manager.svg?style=shield)](https://circleci.com/gh/YOUR_USERNAME/user-manager)
-[![codecov](https://codecov.io/gh/YOUR_USERNAME/user-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/user-manager)
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/9S3XviWTB3m5oEDfR2c5gT/SgeB5oGNZF8Np1AhpjjwR6/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/9S3XviWTB3m5oEDfR2c5gT/SgeB5oGNZF8Np1AhpjjwR6/tree/main)
+[![codecov](https://codecov.io/gitlab/lpreaux/usermanager/graph/badge.svg?token=7D5GDS8H1G)](https://codecov.io/gitlab/lpreaux/usermanager)
 
 Application de gestion d'utilisateurs développée avec une architecture hexagonale en Spring Boot.
 
