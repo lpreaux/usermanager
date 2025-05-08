@@ -1,0 +1,41 @@
+# Configuration Codecov pour le projet User Manager
+coverage:
+  precision: 2
+  round: down
+  range: "50...80"
+
+  status:
+    project:
+      default:
+        target: 60%  # Objectif global
+        threshold: 5%  # Tolérance de baisse
+    patch:
+      default:
+        target: 70%  # Nouveau code doit avoir 70% minimum
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: true
+
+# Ignorer certains fichiers
+ignore:
+  - "src/main/java/**/Application.java"
+  - "src/main/java/**/*Config.java"
+  - "src/main/java/**/*Exception.java"
+  - "src/test/**/*"
+
+# Groupes de couverture par couche (architecture hexagonale)
+flags:
+  domain:
+    paths:
+      - src/main/java/**/domain/**
+    carryforward: true
+  application:
+    paths:
+      - src/main/java/**/application/**
+    carryforward: true
+  infrastructure:
+    paths:
+      - src/main/java/**/infrastructure/**
+    carryforward: true

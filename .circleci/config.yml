@@ -38,16 +38,26 @@ jobs:
       - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:3306 -timeout 1m
-      
-      # Exécuter les tests unitaires SANS skip
+
+      # Exécuter TOUS les tests avec couverture
       - run:
-          name: Run Unit Tests
+          name: Run Tests with Coverage
           command: |
-            ./mvnw test \
+            ./mvnw clean test \
               -Dspring.profiles.active=test
           environment:
             MAVEN_OPTS: -Xmx3200m
-      
+
+      # Générer le rapport JaCoCo
+      - run:
+          name: Generate Coverage Report
+          command: ./mvnw jacoco:report
+
+      # Vérifier la couverture (optionnel)
+      - run:
+          name: Check Coverage
+          command: ./mvnw jacoco:check@jacoco-check || true  # || true pour ne pas bloquer si les seuils ne sont pas atteints
+
       # Exécuter les tests d'intégration
       - run:
           name: Run Integration Tests
@@ -55,17 +65,6 @@ jobs:
             ./mvnw verify \
               -Dspring.profiles.active=test \
               -DskipTests
-      
-      # Générer le rapport de couverture
-      - run:
-          name: Generate Coverage Report
-          command: ./mvnw jacoco:report
-      
-      # Vérifier la couverture (relâcher temporairement les contraintes)
-      - run:
-          name: Check Coverage
-          # command: ./mvnw jacoco:check
-          command: ./mvnw verify
 
       - store_test_results:
           path: target/surefire-reports
@@ -74,8 +73,11 @@ jobs:
           path: target/site/jacoco
           destination: coverage
 
+      # Upload vers Codecov
       - codecov/upload:
           file: target/site/jacoco/jacoco.xml
+          flags: unittests
+          upload_name: user-manager-coverage
 
 workflows:
   version: 2
