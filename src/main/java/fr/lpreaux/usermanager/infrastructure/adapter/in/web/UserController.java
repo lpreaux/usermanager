@@ -4,11 +4,17 @@ import fr.lpreaux.usermanager.application.port.in.*;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.dto.request.*;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.dto.response.UserResponse;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.mapper.UserWebMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +34,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "User Management", description = "Opérations pour la gestion des utilisateurs")
 public class UserController {
 
     private final RegisterUserUseCase registerUserUseCase;
@@ -40,6 +47,13 @@ public class UserController {
      * Register a new user.
      */
     @PostMapping
+    @Operation(summary = "Créer un nouvel utilisateur", description = "Enregistre un nouveau utilisateur avec les informations fournies")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès",
+                    content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Données invalides fournies"),
+            @ApiResponse(responseCode = "409", description = "Login ou email déjà existants")
+    })
     public ResponseEntity<EntityModel<UserResponse>> registerUser(@Valid @RequestBody RegisterUserRequest request) {
         log.info("Registering new user with login: {}", request.login());
 
@@ -60,7 +74,14 @@ public class UserController {
      * Get a user by ID.
      */
     @GetMapping("/{userId}")
-    public ResponseEntity<EntityModel<UserResponse>> getUserById(@PathVariable String userId) {
+    @Operation(summary = "Obtenir un utilisateur par ID", description = "Récupère les détails complets d'un utilisateur par son identifiant")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Utilisateur trouvé",
+                    content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    })
+    public ResponseEntity<EntityModel<UserResponse>> getUserById(
+            @Parameter(description = "ID de l'utilisateur à récupérer") @PathVariable String userId) {
         log.info("Getting user with ID: {}", userId);
 
         return userQueryUseCase.findUserById(userId)
@@ -78,6 +99,8 @@ public class UserController {
      * Get all users.
      */
     @GetMapping
+    @Operation(summary = "Obtenir tous les utilisateurs", description = "Récupère la liste complète des utilisateurs")
+    @ApiResponse(responseCode = "200", description = "Liste des utilisateurs récupérée avec succès")
     public ResponseEntity<CollectionModel<EntityModel<UserResponse>>> getAllUsers() {
         log.info("Getting all users");
 
@@ -100,8 +123,14 @@ public class UserController {
      * Update a user's personal information.
      */
     @PutMapping("/{userId}/personal-info")
+    @Operation(summary = "Mettre à jour les informations personnelles", description = "Met à jour le nom, prénom et la date de naissance d'un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Informations mises à jour avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides fournies"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    })
     public ResponseEntity<EntityModel<UserResponse>> updatePersonalInfo(
-            @PathVariable String userId,
+            @Parameter(description = "ID de l'utilisateur à mettre à jour") @PathVariable String userId,
             @Valid @RequestBody UpdatePersonalInfoRequest request) {
         log.info("Updating personal info for user ID: {}", userId);
 
@@ -122,8 +151,14 @@ public class UserController {
      * Change a user's password.
      */
     @PostMapping("/{userId}/password/change")
+    @Operation(summary = "Changer le mot de passe", description = "Modifie le mot de passe d'un utilisateur après vérification du mot de passe actuel")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Mot de passe changé avec succès"),
+            @ApiResponse(responseCode = "400", description = "Mot de passe actuel incorrect ou nouveau mot de passe invalide"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    })
     public ResponseEntity<Void> changePassword(
-            @PathVariable String userId,
+            @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Valid @RequestBody ChangePasswordRequest request) {
         log.info("Changing password for user ID: {}", userId);
 
@@ -137,8 +172,15 @@ public class UserController {
      * Add an email to a user.
      */
     @PostMapping("/{userId}/emails")
+    @Operation(summary = "Ajouter un email", description = "Ajoute une adresse email à un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Email ajouté avec succès"),
+            @ApiResponse(responseCode = "400", description = "Format d'email invalide"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé"),
+            @ApiResponse(responseCode = "409", description = "Email déjà utilisé par un autre utilisateur")
+    })
     public ResponseEntity<EntityModel<UserResponse>> addEmail(
-            @PathVariable String userId,
+            @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Valid @RequestBody AddEmailRequest request) {
         log.info("Adding email {} to user ID: {}", request.email(), userId);
 
@@ -152,9 +194,15 @@ public class UserController {
      * Remove an email from a user.
      */
     @DeleteMapping("/{userId}/emails/{email}")
+    @Operation(summary = "Supprimer un email", description = "Supprime une adresse email d'un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Email supprimé avec succès"),
+            @ApiResponse(responseCode = "400", description = "Impossible de supprimer le dernier email"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    })
     public ResponseEntity<EntityModel<UserResponse>> removeEmail(
-            @PathVariable String userId,
-            @PathVariable String email) {
+            @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
+            @Parameter(description = "Email à supprimer") @PathVariable String email) {
         log.info("Removing email {} from user ID: {}", email, userId);
 
         UpdateUserUseCase.RemoveEmailCommand command = new UpdateUserUseCase.RemoveEmailCommand(userId, email);
@@ -167,8 +215,14 @@ public class UserController {
      * Add a phone number to a user.
      */
     @PostMapping("/{userId}/phone-numbers")
+    @Operation(summary = "Ajouter un numéro de téléphone", description = "Ajoute un numéro de téléphone à un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Numéro de téléphone ajouté avec succès"),
+            @ApiResponse(responseCode = "400", description = "Format de numéro de téléphone invalide"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    })
     public ResponseEntity<EntityModel<UserResponse>> addPhoneNumber(
-            @PathVariable String userId,
+            @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Valid @RequestBody AddPhoneNumberRequest request) {
         log.info("Adding phone number {} to user ID: {}", request.phoneNumber(), userId);
 
@@ -182,9 +236,14 @@ public class UserController {
      * Remove a phone number from a user.
      */
     @DeleteMapping("/{userId}/phone-numbers/{phoneNumber}")
+    @Operation(summary = "Supprimer un numéro de téléphone", description = "Supprime un numéro de téléphone d'un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Numéro de téléphone supprimé avec succès"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    })
     public ResponseEntity<EntityModel<UserResponse>> removePhoneNumber(
-            @PathVariable String userId,
-            @PathVariable String phoneNumber) {
+            @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
+            @Parameter(description = "Numéro de téléphone à supprimer") @PathVariable String phoneNumber) {
         log.info("Removing phone number {} from user ID: {}", phoneNumber, userId);
 
         UpdateUserUseCase.RemovePhoneNumberCommand command = new UpdateUserUseCase.RemovePhoneNumberCommand(userId, phoneNumber);
@@ -197,7 +256,13 @@ public class UserController {
      * Delete a user.
      */
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+    @Operation(summary = "Supprimer un utilisateur", description = "Supprime définitivement un utilisateur du système")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Utilisateur supprimé avec succès"),
+            @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
+    })
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "ID de l'utilisateur à supprimer") @PathVariable String userId) {
         log.info("Deleting user with ID: {}", userId);
 
         deleteUserUseCase.deleteUser(userId);
@@ -208,7 +273,13 @@ public class UserController {
      * Search for a user by email.
      */
     @GetMapping("/search/by-email")
-    public ResponseEntity<EntityModel<UserResponse>> getUserByEmail(@RequestParam String email) {
+    @Operation(summary = "Rechercher un utilisateur par email", description = "Trouve un utilisateur par son adresse email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Utilisateur trouvé"),
+            @ApiResponse(responseCode = "404", description = "Aucun utilisateur trouvé avec cet email")
+    })
+    public ResponseEntity<EntityModel<UserResponse>> getUserByEmail(
+            @Parameter(description = "Email à rechercher") @RequestParam String email) {
         log.info("Searching user by email: {}", email);
 
         return userQueryUseCase.findUserByEmail(email)
@@ -226,7 +297,13 @@ public class UserController {
      * Search for a user by login.
      */
     @GetMapping("/search/by-login")
-    public ResponseEntity<EntityModel<UserResponse>> getUserByLogin(@RequestParam String login) {
+    @Operation(summary = "Rechercher un utilisateur par login", description = "Trouve un utilisateur par son login")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Utilisateur trouvé"),
+            @ApiResponse(responseCode = "404", description = "Aucun utilisateur trouvé avec ce login")
+    })
+    public ResponseEntity<EntityModel<UserResponse>> getUserByLogin(
+            @Parameter(description = "Login à rechercher") @RequestParam String login) {
         log.info("Searching user by login: {}", login);
 
         return userQueryUseCase.findUserByLogin(login)
