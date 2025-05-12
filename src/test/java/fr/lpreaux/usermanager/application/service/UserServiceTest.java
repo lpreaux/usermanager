@@ -8,6 +8,7 @@ import fr.lpreaux.usermanager.application.port.in.UserQueryUseCase.UserDetailsDT
 import fr.lpreaux.usermanager.application.port.out.UserRepository;
 import fr.lpreaux.usermanager.domain.model.User;
 import fr.lpreaux.usermanager.domain.model.valueobject.*;
+import io.micrometer.core.instrument.Counter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private Counter userRegistrationCounter;
 
     @InjectMocks
     private UserService userService;
