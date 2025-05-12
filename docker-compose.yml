@@ -38,6 +38,11 @@ services:
     networks:
       - user-manager-network
     restart: unless-stopped
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://loki:3100/loki/api/v1/push"
+        loki-batch-size: "400"
 
   db:
     image: mariadb:11.0
@@ -78,6 +83,7 @@ services:
 
 networks:
   user-manager-network:
+    name: user-manager-network
     driver: bridge
 
 volumes:

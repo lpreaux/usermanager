@@ -38,6 +38,11 @@ server:
 
 # Logging Configuration
 logging:
+  file:
+    name: ./logs/user-manager.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   level:
     root: INFO
     fr.lpreaux.usermanager: DEBUG
@@ -56,3 +61,31 @@ springdoc:
   show-actuator: true
   packages-to-scan: fr.lpreaux.usermanager.infrastructure.adapter.in.web
   paths-to-match: /api/**
+
+sentry:
+  dsn: https://baa699b68b71d63aecdef55f352eeed0@o4509312009109504.ingest.de.sentry.io/4509312013303888  # Obtenez ce DSN depuis votre compte Sentry
+  traces-sample-rate: 1.0  # En développement, capturez toutes les traces
+  environment: development  # Ou production, staging, etc.
+  release: ${project.name}@${project.version}  # Utilisez la même version que dans votre pom.xml
+  logging:
+    minimum-event-level: warn
+    minimum-breadcrumb-level: info
+  in-app-includes: fr.lpreaux.usermanager  # Votre package principal
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+    git:
+      mode: full
+  prometheus:
+    metrics:
+      export:
+        enabled: true
