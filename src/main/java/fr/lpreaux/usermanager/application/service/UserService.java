@@ -8,7 +8,6 @@ import fr.lpreaux.usermanager.application.port.in.UserQueryUseCase;
 import fr.lpreaux.usermanager.application.port.out.UserRepository;
 import fr.lpreaux.usermanager.domain.model.User;
 import fr.lpreaux.usermanager.domain.model.valueobject.*;
-import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,6 @@ import java.util.stream.Collectors;
 public class UserService implements RegisterUserUseCase, UserQueryUseCase, UpdateUserUseCase, DeleteUserUseCase {
 
     private final UserRepository userRepository;
-    private final Counter userRegistrationCounter;
 
     /**
      * Registers a new user with the provided information.
@@ -70,9 +68,6 @@ public class UserService implements RegisterUserUseCase, UserQueryUseCase, Updat
         // Save user
         User savedUser = userRepository.save(user);
         log.info("User successfully registered with ID: {}", savedUser.getId().getValue());
-
-        // Incrémentation du compteur après un enregistrement réussi
-        userRegistrationCounter.increment();
 
         return savedUser.getId();
     }

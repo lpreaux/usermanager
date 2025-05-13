@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://db:3306/user_manager
+    username: user_manager
+    password: user_manager_password
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+    remote:
+      secret: ${SPRING_DEVTOOLS_REMOTE_SECRET}
+
+
+logging:
+  file:
+    name: ./logs/user-manager-dev.log
+  level:
+    root: INFO
+    fr.lpreaux.usermanager: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} traceId=%X{traceId} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Exposer tous les endpoints en dev
+  endpoint:
+    health:
+      show-details: always
+
+sentry:
+  environment: development
+  traces-sample-rate: 1.0  # Capturer toutes les traces
+  debug: true
+  logging:
+    minimum-event-level: info
+    minimum-breadcrumb-level: debug
+
+posthog:
+  enabled: true
+  environment: development
+  debug-mode: true

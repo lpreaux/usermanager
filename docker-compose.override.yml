@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      target: development
+    container_name: user-manager-app
+    volumes:
+      - maven-cache:/root/.m2  # Persist Maven cache
+      - ./src:/build/src       # Hot reload du code source
+      - ./target:/build/target # Accès aux classes compilées
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "true"
+      JAVA_OPTS: "-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
+      # Feature flags pour développement
+      FEATURE_FLAGS_DEFAULT_ENABLED: "true"
+    ports:
+      - "8000:8000"     # Port de debug
+      - "35729:35729"   # Port de livereload
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /build/src
+          ignore:
+            - ./src/test
+        - action: sync
+          path: ./pom.xml
+          target: /build/pom.xml
+        - action: rebuild
+          path: pom.xml
+    # En dev, on utilise json-file pour faciliter le débogage
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  db:
+    ports:
+      - "3306:3306"    # Exposer le port MariaDB en développement
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --slow-query-log=1 --slow-query-log-file=/var/log/mysql/slow-query.log --long-query-time=1
+    volumes:
+      - ./dev/mysql-logs:/var/log/mysql
+
+volumes:
+  maven-cache:

@@ -1,35 +1,55 @@
-HELP.md
+# Git - Ignorer les fichiers générés et sensibles
+
+# Fichiers d'environnement
+.env
+.env.local
+.env.*.local
+
+# Mais conserver les modèles
+!.env.dev
+!.env.prod
+
+# Dossiers et fichiers générés
 target/
 logs/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+backups/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Fichiers Maven
+.mvn/wrapper/maven-wrapper.jar
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# IDE files
+.idea/
 *.iml
+*.iws
 *.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+.classpath
+.project
+.settings/
 .vscode/
 
+# Certificats SSL générés localement
+nginx/ssl/*.crt
+nginx/ssl/*.key
+nginx/ssl/*.pem
+
+# Fichiers de logs
+*.log
+nginx/logs/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.swp
+*~
+
+# Fichiers d'authentification
+nginx/conf/.htpasswd
+.htpasswd
+
+# Docker
+.docker/
+
+# Divers
+.DS_Store
+Thumbs.db
+/HELP.md

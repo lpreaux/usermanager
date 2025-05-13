@@ -4,50 +4,21 @@ spring:
 
   # Database Configuration
   datasource:
-    url: jdbc:mariadb://localhost:3306/user_manager
-    username: user_manager
-    password: user_manager_password
     driver-class-name: org.mariadb.jdbc.Driver
-
-  # JPA Configuration
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
-    show-sql: true
-
-  # Flyway Configuration
   flyway:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
 
-  devtools:
-    restart:
-      enabled: true
-    livereload:
-      enabled: true
-    remote:
-      secret: mysecret # Doit correspondre à SPRING_DEVTOOLS_REMOTE_SECRET dans docker-compose.yml
-
 # Server Configuration
 server:
   port: 8080
-
-# Logging Configuration
-logging:
-  file:
-    name: ./logs/user-manager.log
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  level:
-    root: INFO
-    fr.lpreaux.usermanager: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 # Configuration OpenAPI
 springdoc:
@@ -64,22 +35,14 @@ springdoc:
 
 sentry:
   dsn: https://baa699b68b71d63aecdef55f352eeed0@o4509312009109504.ingest.de.sentry.io/4509312013303888  # Obtenez ce DSN depuis votre compte Sentry
-  traces-sample-rate: 1.0  # En développement, capturez toutes les traces
-  environment: development  # Ou production, staging, etc.
-  release: ${project.name}@${project.version}  # Utilisez la même version que dans votre pom.xml
+  traces-sample-rate: 1.0
+  environment: undefined
+  release: ${project.name}@${project.version}
   logging:
     minimum-event-level: warn
     minimum-breadcrumb-level: info
-  in-app-includes: fr.lpreaux.usermanager  # Votre package principal
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,loggers,prometheus
-  endpoint:
-    health:
-      show-details: when_authorized
   info:
     env:
       enabled: true
@@ -92,9 +55,7 @@ management:
 
 # Configuration PostHog
 posthog:
-  api-key: ${POSTHOG_API_KEY:phc_your_api_key}  # Remplacez par votre clé API ou utilisez une variable d'environnement
-  host: ${POSTHOG_HOST:https://app.posthog.com}
-  # Les caractéristiques suivantes sont optionnelles
+  api-key: ${POSTHOG_API_KEY}
+  host: ${POSTHOG_HOST}
   enabled: ${POSTHOG_ENABLED:true}
-  # Environnement pour la segmentation des données (development, staging, production)
-  environment: ${SPRING_PROFILES_ACTIVE:development}
+  environment: undefined

@@ -33,7 +33,7 @@ Voir le [rapport détaillé](https://codecov.io/gh/YOUR_USERNAME/user-manager).
 
 ```bash
 # Démarrer l'environnement
-./dev-env.sh
+./deploy.sh
 
 # Exécuter les tests avec couverture
 ./mvnw clean verify

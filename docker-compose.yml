@@ -2,72 +2,59 @@ services:
   app:
     build:
       context: .
-      target: development
-    container_name: user-manager-app
-    volumes:
-      - maven-cache:/root/.m2  # Persist Maven cache
-      - ./target:/build/target
     environment:
-      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
-      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "true"
+      # Variables d'environnement communes
       SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/user_manager
-      SPRING_DATASOURCE_USERNAME: user_manager
-      SPRING_DATASOURCE_PASSWORD: user_manager_password
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-user_manager}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-user_manager_password}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_FLYWAY_ENABLED: true
-      SPRING_DEVTOOLS_REMOTE_SECRET: mysecret
+      # Configuration Sentry
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: ${SPRING_PROFILES_ACTIVE:-dev}
       # Configuration PostHog
-      POSTHOG_API_KEY: ${POSTHOG_API_KEY:-phc_NW786lCrenH9wgWoJ0SxxwDog1AfiwAQpxhp7ThlT1I}
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY}
       POSTHOG_HOST: ${POSTHOG_HOST:-https://eu.i.posthog.com}
       POSTHOG_ENABLED: ${POSTHOG_ENABLED:-true}
-      POSTHOG_ENVIRONMENT: ${SPRING_PROFILES_ACTIVE:-development}
+      POSTHOG_ENVIRONMENT: ${SPRING_PROFILES_ACTIVE:-dev}
+      # Feature Flags
+      FEATURE_FLAGS_ENABLED: ${FEATURE_FLAGS_ENABLED:-true}
     ports:
-      - 8080:8080
-      - 8000:8000
-      - 35729:35729
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
-    develop:
-      watch:
-        - action: sync
-          path: ./src
-          target: /build/src
-          ignore:
-            - ./src/test
-        - action: sync
-          path: ./pom.xml
-          target: /build/pom.xml
-        - action: rebuild
-          path: pom.xml
     networks:
       - user-manager-network
     restart: unless-stopped
     logging:
-      driver: loki
+      driver: json-file
       options:
-        loki-url: "http://loki:3100/loki/api/v1/push"
-        loki-batch-size: "400"
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: "curl --fail http://localhost:8080/actuator/health || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   db:
     image: mariadb:11.0
     container_name: user-manager-db
     environment:
-      - MARIADB_DATABASE=user_manager
-      - MARIADB_USER=user_manager
-      - MARIADB_PASSWORD=user_manager_password
-      - MARIADB_ROOT_PASSWORD=root_password  # Valeur fixe, pas de variable
-    ports:
-      - "3306:3306"
+      - MARIADB_DATABASE=${DB_NAME:-user_manager}
+      - MARIADB_USER=${DB_USER:-user_manager}
+      - MARIADB_PASSWORD=${DB_PASSWORD:-user_manager_password}
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root_password}
     volumes:
       - mariadb-data:/var/lib/mysql
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  # Point de montage pour les scripts d'initialisation
     networks:
       - user-manager-network
     restart: unless-stopped
     healthcheck:
-      test: |
-        healthcheck.sh --connect --innodb_initialized && 
-        mariadb -h localhost -u user_manager -puser_manager_password -e "SELECT 1" user_manager
+      test: "healthcheck.sh --connect --innodb_initialized && mariadb -h localhost -u ${DB_USER:-user_manager} -p${DB_PASSWORD:-user_manager_password} -e 'SELECT 1' ${DB_NAME:-user_manager}"
       interval: 10s
       timeout: 5s
       retries: 5
@@ -88,9 +75,8 @@ services:
 
 networks:
   user-manager-network:
-    name: user-manager-network
-    driver: bridge
+    name: ${NETWORK_NAME:-user-manager-network}
 
 volumes:
   mariadb-data:
-  maven-cache:
+    name: ${VOLUME_PREFIX:-}mariadb-data

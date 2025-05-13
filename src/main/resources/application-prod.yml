@@ -1,0 +1,37 @@
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  file:
+    name: ./logs/user-manager-prod.log
+  level:
+    root: WARN
+    fr.lpreaux.usermanager: INFO
+    org.springframework.web: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} traceId=%X{traceId} spanId=%X{spanId} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} traceId=%X{traceId} spanId=%X{spanId} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /management  # Chemin personnalisé pour plus de sécurité
+  endpoint:
+    health:
+      show-details: when_authorized
+
+sentry:
+  environment: production
+  traces-sample-rate: 0.1  # Échantillonner 10% des traces
+  debug: false
+  logging:
+    minimum-event-level: warn
+    minimum-breadcrumb-level: info
+
+posthog:
+  enabled: true
+  environment: production
+  debug-mode: false
