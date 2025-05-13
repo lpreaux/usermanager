@@ -16,6 +16,11 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_FLYWAY_ENABLED: true
       SPRING_DEVTOOLS_REMOTE_SECRET: mysecret
+      # Configuration PostHog
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY:-phc_NW786lCrenH9wgWoJ0SxxwDog1AfiwAQpxhp7ThlT1I}
+      POSTHOG_HOST: ${POSTHOG_HOST:-https://eu.i.posthog.com}
+      POSTHOG_ENABLED: ${POSTHOG_ENABLED:-true}
+      POSTHOG_ENVIRONMENT: ${SPRING_PROFILES_ACTIVE:-development}
     ports:
       - 8080:8080
       - 8000:8000

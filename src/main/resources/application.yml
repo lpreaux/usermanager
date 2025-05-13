@@ -89,3 +89,12 @@ management:
     metrics:
       export:
         enabled: true
+
+# Configuration PostHog
+posthog:
+  api-key: ${POSTHOG_API_KEY:phc_your_api_key}  # Remplacez par votre clé API ou utilisez une variable d'environnement
+  host: ${POSTHOG_HOST:https://app.posthog.com}
+  # Les caractéristiques suivantes sont optionnelles
+  enabled: ${POSTHOG_ENABLED:true}
+  # Environnement pour la segmentation des données (development, staging, production)
+  environment: ${SPRING_PROFILES_ACTIVE:development}

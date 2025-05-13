@@ -4,6 +4,7 @@ import fr.lpreaux.usermanager.application.port.in.*;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.dto.request.*;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.dto.response.UserResponse;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.mapper.UserWebMapper;
+import fr.lpreaux.usermanager.infrastructure.adapter.out.analytics.AnalyticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -42,6 +46,7 @@ public class UserController {
     private final UpdateUserUseCase updateUserUseCase;
     private final DeleteUserUseCase deleteUserUseCase;
     private final UserWebMapper userWebMapper;
+    private final AnalyticsService analyticsService;
 
     /**
      * Register a new user.
@@ -66,6 +71,20 @@ public class UserController {
         UserResponse response = userWebMapper.toUserResponse(userDetails);
         EntityModel<UserResponse> resource = EntityModel.of(response);
         resource.add(linkTo(methodOn(UserController.class).getUserById(userId.getValue().toString())).withSelfRel());
+
+        // Tracking de l'événement d'inscription
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("login", request.login());
+        properties.put("has_phone", request.phoneNumbers() != null && !request.phoneNumbers().isEmpty());
+        properties.put("email_count", request.emails().size());
+        analyticsService.trackEvent(userId.getValue().toString(), "user_registered", properties);
+
+        // Identification de l'utilisateur pour PostHog
+        Map<String, Object> userProperties = new HashMap<>();
+        userProperties.put("login", request.login());
+        userProperties.put("name", request.firstName() + " " + request.lastName());
+        userProperties.put("email", request.emails().getFirst());
+        analyticsService.identifyUser(userId.getValue().toString(), userProperties);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(resource);
     }
@@ -265,7 +284,20 @@ public class UserController {
             @Parameter(description = "ID de l'utilisateur à supprimer") @PathVariable String userId) {
         log.info("Deleting user with ID: {}", userId);
 
+        // Récupérer les données utilisateur avant suppression pour le tracking
+        var userDetails = userQueryUseCase.findUserById(userId).orElse(null);
+
+        // Effectuer la suppression
         deleteUserUseCase.deleteUser(userId);
+
+        // Tracking de l'événement de suppression si l'utilisateur existait
+        if (userDetails != null) {
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("login", userDetails.login());
+            properties.put("account_age_days", userDetails.age());
+            analyticsService.trackEvent(userId, "user_deleted", properties);
+        }
+
         return ResponseEntity.noContent().build();
     }
 
