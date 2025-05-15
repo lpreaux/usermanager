@@ -22,3 +22,9 @@ logging:
     fr.lpreaux.usermanager: DEBUG
     org.springframework.test: INFO
     org.hibernate.SQL: INFO
+
+posthog:
+  api-key: dummy-api-key-for-tests
+  host: http://localhost:8000
+  enabled: false
+  environment: test
