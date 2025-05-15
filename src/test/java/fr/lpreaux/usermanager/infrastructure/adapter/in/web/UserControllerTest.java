@@ -8,6 +8,7 @@ import fr.lpreaux.usermanager.domain.model.valueobject.UserId;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.dto.request.RegisterUserRequest;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.dto.request.UpdatePersonalInfoRequest;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.mapper.UserWebMapper;
+import fr.lpreaux.usermanager.infrastructure.adapter.out.analytics.AnalyticsService;
 import fr.lpreaux.usermanager.infrastructure.config.TestSecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -43,6 +43,9 @@ class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private AnalyticsService analyticsService;
 
     @MockBean
     private RegisterUserUseCase registerUserUseCase;
