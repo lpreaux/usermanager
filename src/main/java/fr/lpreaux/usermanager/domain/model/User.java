@@ -51,6 +51,12 @@ public class User {
                 .build();
     }
 
+    public static User create(Login login, Password password, Name lastName, FirstName firstName,
+                              BirthDate birthDate, List<Email> emails,
+                              List<PhoneNumber> phoneNumbers) {
+        return User.create(login, password, lastName, firstName, birthDate, emails, phoneNumbers, null);
+    }
+
     /**
      * Updates the personal information of the user.
      */

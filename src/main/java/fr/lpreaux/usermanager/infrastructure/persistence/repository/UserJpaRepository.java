@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,4 +22,8 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, UUID> {
 
     @Query("SELECT COUNT(u) > 0 FROM UserEntity u JOIN u.emails e WHERE e.email = :email")
     boolean existsByEmail(@Param("email") String email);
+
+    List<UserEntity> findByRolesId(UUID roleId);
+
+    boolean existsByIdAndRolesId(UUID userId, UUID roleId);
 }

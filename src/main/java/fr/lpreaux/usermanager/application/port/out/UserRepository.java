@@ -3,6 +3,7 @@ package fr.lpreaux.usermanager.application.port.out;
 import fr.lpreaux.usermanager.domain.model.User;
 import fr.lpreaux.usermanager.domain.model.valueobject.Email;
 import fr.lpreaux.usermanager.domain.model.valueobject.Login;
+import fr.lpreaux.usermanager.domain.model.valueobject.RoleId;
 import fr.lpreaux.usermanager.domain.model.valueobject.UserId;
 
 import java.util.List;
@@ -68,4 +69,21 @@ public interface UserRepository {
      * @return true if the email is already in use, false otherwise
      */
     boolean existsByEmail(Email email);
+
+    /**
+     * Trouve les utilisateurs ayant un rôle spécifique.
+     *
+     * @param roleId L'ID du rôle
+     * @return La liste des utilisateurs ayant ce rôle
+     */
+    List<User> findByRoleId(RoleId roleId);
+
+    /**
+     * Vérifie si un utilisateur a un rôle spécifique.
+     *
+     * @param userId L'ID de l'utilisateur
+     * @param roleId L'ID du rôle
+     * @return true si l'utilisateur a ce rôle, sinon false
+     */
+    boolean hasRole(UserId userId, RoleId roleId);
 }

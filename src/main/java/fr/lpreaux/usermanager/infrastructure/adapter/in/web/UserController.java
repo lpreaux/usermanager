@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -39,6 +41,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "User Management", description = "Opérations pour la gestion des utilisateurs")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
     private final RegisterUserUseCase registerUserUseCase;
@@ -99,6 +102,7 @@ public class UserController {
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     })
+    @PreAuthorize("hasAuthority('USER_READ') or #userId == authentication.principal")
     public ResponseEntity<EntityModel<UserResponse>> getUserById(
             @Parameter(description = "ID de l'utilisateur à récupérer") @PathVariable String userId) {
         log.info("Getting user with ID: {}", userId);
@@ -120,6 +124,7 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Obtenir tous les utilisateurs", description = "Récupère la liste complète des utilisateurs")
     @ApiResponse(responseCode = "200", description = "Liste des utilisateurs récupérée avec succès")
+    @PreAuthorize("hasAuthority('USER_READ')")
     public ResponseEntity<CollectionModel<EntityModel<UserResponse>>> getAllUsers() {
         log.info("Getting all users");
 
@@ -148,6 +153,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Données invalides fournies"),
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     })
+    @PreAuthorize("hasAuthority('USER_UPDATE') or #userId == authentication.principal")
     public ResponseEntity<EntityModel<UserResponse>> updatePersonalInfo(
             @Parameter(description = "ID de l'utilisateur à mettre à jour") @PathVariable String userId,
             @Valid @RequestBody UpdatePersonalInfoRequest request) {
@@ -176,6 +182,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Mot de passe actuel incorrect ou nouveau mot de passe invalide"),
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     })
+    @PreAuthorize("#userId == authentication.principal")
     public ResponseEntity<Void> changePassword(
             @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Valid @RequestBody ChangePasswordRequest request) {
@@ -198,6 +205,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé"),
             @ApiResponse(responseCode = "409", description = "Email déjà utilisé par un autre utilisateur")
     })
+    @PreAuthorize("hasAuthority('USER_UPDATE') or #userId == authentication.principal")
     public ResponseEntity<EntityModel<UserResponse>> addEmail(
             @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Valid @RequestBody AddEmailRequest request) {
@@ -219,6 +227,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Impossible de supprimer le dernier email"),
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     })
+    @PreAuthorize("hasAuthority('USER_UPDATE') or #userId == authentication.principal")
     public ResponseEntity<EntityModel<UserResponse>> removeEmail(
             @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Parameter(description = "Email à supprimer") @PathVariable String email) {
@@ -240,6 +249,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Format de numéro de téléphone invalide"),
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     })
+    @PreAuthorize("hasAuthority('USER_UPDATE') or #userId == authentication.principal")
     public ResponseEntity<EntityModel<UserResponse>> addPhoneNumber(
             @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Valid @RequestBody AddPhoneNumberRequest request) {
@@ -260,6 +270,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Numéro de téléphone supprimé avec succès"),
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     })
+    @PreAuthorize("hasAuthority('USER_UPDATE') or #userId == authentication.principal")
     public ResponseEntity<EntityModel<UserResponse>> removePhoneNumber(
             @Parameter(description = "ID de l'utilisateur") @PathVariable String userId,
             @Parameter(description = "Numéro de téléphone à supprimer") @PathVariable String phoneNumber) {
@@ -280,6 +291,7 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "Utilisateur supprimé avec succès"),
             @ApiResponse(responseCode = "404", description = "Utilisateur non trouvé")
     })
+    @PreAuthorize("hasAuthority('USER_DELETE')")
     public ResponseEntity<Void> deleteUser(
             @Parameter(description = "ID de l'utilisateur à supprimer") @PathVariable String userId) {
         log.info("Deleting user with ID: {}", userId);
@@ -310,6 +322,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Utilisateur trouvé"),
             @ApiResponse(responseCode = "404", description = "Aucun utilisateur trouvé avec cet email")
     })
+    @PreAuthorize("hasAuthority('USER_READ')")
     public ResponseEntity<EntityModel<UserResponse>> getUserByEmail(
             @Parameter(description = "Email à rechercher") @RequestParam String email) {
         log.info("Searching user by email: {}", email);
@@ -329,6 +342,7 @@ public class UserController {
      * Search for a user by login.
      */
     @GetMapping("/search/by-login")
+    @PreAuthorize("hasAuthority('USER_READ')")
     @Operation(summary = "Rechercher un utilisateur par login", description = "Trouve un utilisateur par son login")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Utilisateur trouvé"),

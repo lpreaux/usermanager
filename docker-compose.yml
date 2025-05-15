@@ -73,6 +73,22 @@ services:
     depends_on:
       - db
 
+  redis:
+    image: redis:alpine
+    container_name: user-manager-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - user-manager-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 networks:
   user-manager-network:
     name: ${NETWORK_NAME:-user-manager-network}
@@ -80,3 +96,4 @@ networks:
 volumes:
   mariadb-data:
     name: ${VOLUME_PREFIX:-}mariadb-data
+  redis-data:

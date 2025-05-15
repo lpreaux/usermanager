@@ -5,7 +5,9 @@ import fr.lpreaux.usermanager.application.port.in.DeleteUserUseCase;
 import fr.lpreaux.usermanager.application.port.in.RegisterUserUseCase;
 import fr.lpreaux.usermanager.application.port.in.UpdateUserUseCase;
 import fr.lpreaux.usermanager.application.port.in.UserQueryUseCase;
+import fr.lpreaux.usermanager.application.port.out.RoleRepository;
 import fr.lpreaux.usermanager.application.port.out.UserRepository;
+import fr.lpreaux.usermanager.domain.model.Role;
 import fr.lpreaux.usermanager.domain.model.User;
 import fr.lpreaux.usermanager.domain.model.valueobject.*;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,9 @@ import java.util.stream.Collectors;
 public class UserService implements RegisterUserUseCase, UserQueryUseCase, UpdateUserUseCase, DeleteUserUseCase {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+
+    private static final String DEFAULT_USER_ROLE = "USER";
 
     /**
      * Registers a new user with the provided information.
@@ -62,8 +67,18 @@ public class UserService implements RegisterUserUseCase, UserQueryUseCase, Updat
                 FirstName.of(command.firstName()),
                 BirthDate.of(command.birthDate()),
                 emails,
-                phoneNumbers
+                phoneNumbers,
+                null
         );
+
+        // Attribuer le rôle par défaut
+        Role defaultRole = roleRepository.findByName(DEFAULT_USER_ROLE)
+                .orElseThrow(() -> {
+                    log.error("Default role '{}' not found. Make sure roles are properly initialized.", DEFAULT_USER_ROLE);
+                    return new RoleNotFoundException("Default role '" + DEFAULT_USER_ROLE + "' not found");
+                });
+
+        user = user.addRole(defaultRole);
 
         // Save user
         User savedUser = userRepository.save(user);
