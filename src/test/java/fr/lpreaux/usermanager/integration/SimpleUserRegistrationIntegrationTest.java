@@ -1,6 +1,7 @@
 package fr.lpreaux.usermanager.integration;
 
 import fr.lpreaux.usermanager.application.port.in.RegisterUserUseCase.RegisterUserCommand;
+import fr.lpreaux.usermanager.application.port.in.UpdateUserUseCase;
 import fr.lpreaux.usermanager.application.port.in.UserQueryUseCase.UserDetailsDTO;
 import fr.lpreaux.usermanager.application.service.UserService;
 import fr.lpreaux.usermanager.domain.model.valueobject.UserId;

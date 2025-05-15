@@ -89,4 +89,18 @@ class BirthDateTest {
         // Then
         assertThat(birthDateVO.getAge()).isEqualTo(25);
     }
+
+    // Ajouter des tests pour BirthDate qui vérifient spécifiquement :
+    @Test
+    void shouldCalculateAgeCorrectlyWithEdgeCases() {
+        // Tester la veille d'un anniversaire
+        LocalDate almostBirthday = LocalDate.now().minusYears(30).plusDays(1);
+        BirthDate birthDate = BirthDate.of(almostBirthday);
+        assertThat(birthDate.getAge()).isEqualTo(29);
+
+        // Tester le jour même d'un anniversaire
+        LocalDate exactBirthday = LocalDate.now().minusYears(25);
+        BirthDate exactBirthDate = BirthDate.of(exactBirthday);
+        assertThat(exactBirthDate.getAge()).isEqualTo(25);
+    }
 }

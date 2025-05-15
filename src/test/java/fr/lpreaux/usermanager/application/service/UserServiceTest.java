@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -270,6 +272,25 @@ class UserServiceTest {
         verify(userRepository).save(any(User.class));
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "SecureP1!, 8, true",   // Longueur minimale
+            "P@ss123, 7, false",    // Trop court
+            "NoDigit!, false",      // Sans chiffre
+            "nouppercase123!, false", // Sans majuscule
+            "NOLOWERCASE123!, false", // Sans minuscule
+            "Password123, false"    // Sans caractère spécial
+    })
+    @DisplayName("Should validate password requirements")
+    void shouldValidatePasswordRequirements(String password, int length, boolean isValid) {
+        if (isValid) {
+            assertThat(Password.of(password)).isNotNull();
+        } else {
+            assertThatThrownBy(() -> Password.of(password))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
     @Test
     @DisplayName("Should throw exception when changing password with incorrect current password")
     void shouldThrowExceptionWhenChangingPasswordWithIncorrectCurrentPassword() {
@@ -308,6 +329,31 @@ class UserServiceTest {
         verify(userRepository).findById(UserId.of(userId));
         verify(userRepository).existsByEmail(Email.of(newEmail));
         verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should handle email case sensitivity correctly")
+    void shouldHandleEmailCaseSensitivityCorrectly() {
+        // Given
+        RegisterUserCommand command = new RegisterUserCommand(
+                "john.doe",
+                "SecurePass123!",
+                "Doe",
+                "John",
+                LocalDate.of(1990, 5, 15),
+                List.of("John.Doe@Example.com"),
+                List.of("+33612345678")
+        );
+
+        when(userRepository.existsByLogin(any(Login.class))).thenReturn(false);
+        when(userRepository.existsByEmail(any(Email.class))).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        // When
+        userService.registerUser(command);
+
+        // Then
+        verify(userRepository).existsByEmail(Email.of("john.doe@example.com"));
     }
 
     @Test
