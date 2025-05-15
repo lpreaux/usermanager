@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Main domain entity representing a user.
@@ -28,13 +30,14 @@ public class User {
     private final BirthDate birthDate;
     private final List<Email> emails;
     private final List<PhoneNumber> phoneNumbers;
+    private final Set<Role> roles;
 
     /**
      * Creates a new user with the required information.
      */
     public static User create(Login login, Password password, Name lastName, FirstName firstName,
                               BirthDate birthDate, List<Email> emails,
-                              List<PhoneNumber> phoneNumbers) {
+                              List<PhoneNumber> phoneNumbers, Set<Role> roles) {
         return User.builder()
                 .id(UserId.generate())
                 .login(login)
@@ -44,6 +47,7 @@ public class User {
                 .birthDate(birthDate)
                 .emails(emails != null ? List.copyOf(emails) : Collections.emptyList())
                 .phoneNumbers(phoneNumbers != null ? List.copyOf(phoneNumbers) : Collections.emptyList())
+                .roles(roles != null ? Collections.unmodifiableSet(new HashSet<>(roles)) : Collections.emptySet())
                 .build();
     }
 
@@ -135,5 +139,41 @@ public class User {
      */
     public List<PhoneNumber> getPhoneNumbers() {
         return Collections.unmodifiableList(phoneNumbers);
+    }
+
+    public User addRole(Role role) {
+        if (role == null) {
+            return this;
+        }
+        Set<Role> newRoles = new HashSet<>(this.roles);
+        newRoles.add(role);
+        return this.toBuilder()
+                .roles(Collections.unmodifiableSet(newRoles))
+                .build();
+    }
+
+    public User removeRole(Role role) {
+        if (role == null) {
+            return this;
+        }
+        Set<Role> newRoles = new HashSet<>(this.roles);
+        newRoles.remove(role);
+        return this.toBuilder()
+                .roles(Collections.unmodifiableSet(newRoles))
+                .build();
+    }
+
+    public boolean hasRole(String roleName) {
+        return this.roles.stream()
+                .anyMatch(r -> r.getName().equalsIgnoreCase(roleName));
+    }
+
+    public boolean hasPermission(Permission permission) {
+        return this.roles.stream()
+                .anyMatch(r -> r.hasPermission(permission));
+    }
+
+    public Set<Role> getRoles() {
+        return Collections.unmodifiableSet(roles);
     }
 }
