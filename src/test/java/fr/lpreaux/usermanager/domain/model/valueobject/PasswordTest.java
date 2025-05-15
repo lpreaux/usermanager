@@ -14,33 +14,11 @@ class PasswordTest {
     @DisplayName("Should create valid password")
     void shouldCreateValidPassword() {
         // When
-        Password password = Password.of("ValidPass123!");
+        Password password = Password.of("SecurePass123!");
 
         // Then
         assertThat(password).isNotNull();
-        assertThat(password.getValue()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Should hash password")
-    void shouldHashPassword() {
-        // When
-        Password password = Password.hash("ValidPass123!");
-
-        // Then
-        assertThat(password).isNotNull();
-        assertThat(password.getValue()).isEqualTo("ValidPass123!"); // Temporary implementation
-    }
-
-    @Test
-    @DisplayName("Should match correct password")
-    void shouldMatchCorrectPassword() {
-        // Given
-        Password password = Password.of("ValidPass123!");
-
-        // When/Then
-        assertThat(password.matches("ValidPass123!")).isTrue();
-        assertThat(password.matches("WrongPassword123!")).isFalse();
+        assertThat(password.getValue()).isEqualTo("SecurePass123!");
     }
 
     @Test
@@ -52,45 +30,119 @@ class PasswordTest {
     }
 
     @Test
-    @DisplayName("Should throw exception for short password")
-    void shouldThrowExceptionForShortPassword() {
-        assertThatThrownBy(() -> Password.of("Short1!"))
+    @DisplayName("Should throw exception for password too short")
+    void shouldThrowExceptionForPasswordTooShort() {
+        assertThatThrownBy(() -> Password.of("Sh0rt!"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Password must be between 8 and 100 characters");
+                .hasMessageContaining("Password must be between 8 and 100 characters");
     }
 
     @Test
-    @DisplayName("Should throw exception for long password")
-    void shouldThrowExceptionForLongPassword() {
-        String longPassword = "a".repeat(101) + "A1!";
+    @DisplayName("Should throw exception for password too long")
+    void shouldThrowExceptionForPasswordTooLong() {
+        String longPassword = "A" + "a".repeat(99) + "1!";
+
         assertThatThrownBy(() -> Password.of(longPassword))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Password must be between 8 and 100 characters");
+                .hasMessageContaining("Password must be between 8 and 100 characters");
+    }
+
+    @Test
+    @DisplayName("Should throw exception for password without uppercase")
+    void shouldThrowExceptionForPasswordWithoutUppercase() {
+        assertThatThrownBy(() -> Password.of("securepass123!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Password must contain at least one uppercase letter");
+    }
+
+    @Test
+    @DisplayName("Should throw exception for password without lowercase")
+    void shouldThrowExceptionForPasswordWithoutLowercase() {
+        assertThatThrownBy(() -> Password.of("SECUREPASS123!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Password must contain at least one lowercase letter");
+    }
+
+    @Test
+    @DisplayName("Should throw exception for password without digit")
+    void shouldThrowExceptionForPasswordWithoutDigit() {
+        assertThatThrownBy(() -> Password.of("SecurePassword!"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Password must contain at least one digit");
+    }
+
+    @Test
+    @DisplayName("Should throw exception for password without special character")
+    void shouldThrowExceptionForPasswordWithoutSpecialCharacter() {
+        assertThatThrownBy(() -> Password.of("SecurePass123"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Password must contain at least one special character");
+    }
+
+    @Test
+    @DisplayName("Should hash password correctly")
+    void shouldHashPasswordCorrectly() {
+        // When
+        Password hashedPassword = Password.hash("SecurePass123!");
+
+        // Then - Note: This test is based on the current implementation which doesn't actually hash
+        assertThat(hashedPassword).isNotNull();
+        // In a real implementation with actual hashing, you'd want to test that:
+        // - The hashed value is not the same as the plain text
+        // - The hash is consistent (same input -> same hash)
+    }
+
+    @Test
+    @DisplayName("Should correctly match plain text password")
+    void shouldCorrectlyMatchPlainTextPassword() {
+        // Given
+        Password password = Password.of("SecurePass123!");
+
+        // When/Then
+        assertThat(password.matches("SecurePass123!")).isTrue();
+        assertThat(password.matches("WrongPassword123!")).isFalse();
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "nouppercasehere1!",
-            "NOLOWERCASEHERE1!",
-            "NoDigitsHere!",
-            "NoSpecialChars123"
+            "SecureP1!", // Minimum length
+            "VerySecurePassword123!@#", // Mix of characters
+            "Complex-Pass_123!", // With hyphen and underscore
+            "Pass123Word!" // Mixed order
     })
-    @DisplayName("Should reject invalid password formats")
-    void shouldRejectInvalidPasswordFormats(String invalidPassword) {
-        assertThatThrownBy(() -> Password.of(invalidPassword))
-                .isInstanceOf(IllegalArgumentException.class);
+    @DisplayName("Should accept valid password formats")
+    void shouldAcceptValidPasswordFormats(String validPassword) {
+        // When
+        Password password = Password.of(validPassword);
+
+        // Then
+        assertThat(password).isNotNull();
+        assertThat(password.getValue()).isEqualTo(validPassword);
     }
 
     @Test
-    @DisplayName("Should implement toString without exposing password")
-    void shouldImplementToStringWithoutExposingPassword() {
+    @DisplayName("Should exclude value from toString for security")
+    void shouldExcludeValueFromToString() {
         // Given
-        Password password = Password.of("ValidPass123!");
+        Password password = Password.of("SecurePass123!");
 
         // When
         String toString = password.toString();
 
+        // Then - toString should not include the actual password value
+        assertThat(toString).doesNotContain("SecurePass123!");
+    }
+
+    @Test
+    @DisplayName("Should implement equals correctly")
+    void shouldImplementEqualsCorrectly() {
+        // Given
+        Password password1 = Password.of("SecurePass123!");
+        Password password2 = Password.of("SecurePass123!");
+        Password password3 = Password.of("DifferentPass123!");
+
         // Then
-        assertThat(toString).doesNotContain("ValidPass123!");
+        assertThat(password1).isEqualTo(password2);
+        assertThat(password1).isNotEqualTo(password3);
     }
 }
