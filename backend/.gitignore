@@ -1,29 +1,5 @@
 # Git - Ignorer les fichiers générés et sensibles
 
-# Common
-node_modules/
-.DS_Store
-*.log
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Backend
-backend/target/
-backend/.mvn/wrapper/maven-wrapper.jar
-backend/*.iml
-backend/.idea/
-backend/.vscode/
-
-# Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/build/
-frontend/coverage/
-frontend/.pnpm-store/
-frontend/.vite/
-
 # Fichiers d'environnement
 .env
 .env.local
