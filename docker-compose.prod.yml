@@ -1,6 +1,7 @@
 services:
   app:
     build:
+      context: ./backend  # Mise à jour du chemin
       target: final
     # Pas de container_name fixe en mode replicas
     # container_name: user-manager-app-prod

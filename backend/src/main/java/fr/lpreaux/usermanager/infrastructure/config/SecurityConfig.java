@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/**",                  // Routes d'authentification
                                 "/swagger-ui/**",                   // Documentation Swagger
-                                "/v3/api-docs/**",                  // OpenAPI
+                                "/api-docs/**",                  // OpenAPI
                                 "/actuator/health",                 // Health check
                                 "/error"                            // Pages d'erreur
                         ).permitAll()

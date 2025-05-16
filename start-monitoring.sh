@@ -12,7 +12,6 @@ fi
 
 # Démarrer la stack de monitoring
 echo "Starting monitoring stack..."
-# Notez le changement de chemin ici
 cd monitoring && docker-compose up -d
 
 echo "Monitoring stack started!"

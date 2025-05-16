@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: .
+      context: ./backend  # Mise à jour du chemin
     environment:
       # Variables d'environnement communes
       SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/user_manager
@@ -49,7 +49,7 @@ services:
       - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root_password}
     volumes:
       - mariadb-data:/var/lib/mysql
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  # Point de montage pour les scripts d'initialisation
+      - ./backend/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  # Mise à jour du chemin
     networks:
       - user-manager-network
     restart: unless-stopped

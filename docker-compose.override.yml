@@ -5,8 +5,8 @@ services:
     container_name: user-manager-app
     volumes:
       - maven-cache:/root/.m2  # Persist Maven cache
-      - ./src:/build/src       # Hot reload du code source
-      - ./target:/build/target # Accès aux classes compilées
+      - ./backend/src:/build/src       # Hot reload du code source avec nouveau chemin
+      - ./backend/target:/build/target # Accès aux classes compilées avec nouveau chemin
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
@@ -20,15 +20,15 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./src
+          path: ./backend/src  # Mise à jour du chemin
           target: /build/src
           ignore:
-            - ./src/test
+            - ./backend/src/test
         - action: sync
-          path: ./pom.xml
+          path: ./backend/pom.xml  # Mise à jour du chemin
           target: /build/pom.xml
         - action: rebuild
-          path: pom.xml
+          path: ./backend/pom.xml  # Mise à jour du chemin
     # En dev, on utilise json-file pour faciliter le débogage
     logging:
       driver: json-file
