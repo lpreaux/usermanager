@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Implémentation Redis du repository de liste noire de tokens.
+ * Utilise Redis comme stockage pour les tokens révoqués avec expiration automatique.
  */
 @Component
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class RedisTokenBlacklistAdapter implements TokenBlacklistRepository {
     // Préfixes pour les clés Redis
     private static final String TOKEN_PREFIX = "blacklisted_token:";
     private static final String USER_PREFIX = "blacklisted_user:";
+    private static final String USER_TOKEN_PREFIX = "user_tokens:";
 
     @Override
     public void addToBlacklist(String token, long expirationTimeMs) {
@@ -36,7 +38,7 @@ public class RedisTokenBlacklistAdapter implements TokenBlacklistRepository {
         if (ttlMs > 0) {
             log.debug("Adding token to blacklist with TTL: {} ms", ttlMs);
 
-            // Stocker des métadonnées supplémentaires peut être utile pour le débogage
+            // Stocker des métadonnées supplémentaires pour le débogage
             String value = Instant.now().toString();
 
             redisTemplate.opsForValue().set(key, value, ttlMs, TimeUnit.MILLISECONDS);
@@ -55,18 +57,27 @@ public class RedisTokenBlacklistAdapter implements TokenBlacklistRepository {
         if (exists) {
             log.debug("Token found in blacklist");
             securityMetrics.incrementRejectedTokens();
+            return true;
         }
 
-        return exists;
+        return false;
     }
 
     @Override
-    @Scheduled(fixedRate = 3600000) // Nettoyage toutes les heures (si nécessaire)
+    @Scheduled(fixedRate = 3600000) // Nettoyage toutes les heures
     public void removeExpiredTokens() {
         // Redis gère automatiquement l'expiration des clés
         // Cette méthode est principalement pour la conformité avec l'interface
-        // et pourrait servir à d'autres actions de maintenance
-        log.debug("Redis automatically manages token expiration, no manual cleanup needed");
+        // et pourrait servir à des actions de maintenance supplémentaires
+
+        log.debug("Starting scheduled maintenance check for token blacklist");
+
+        // Comptage des entrées dans la liste noire pour monitoring
+        long size = getBlacklistSize();
+        log.info("Current blacklist size: {} tokens", size);
+
+        // On pourrait ajouter ici d'autres opérations de maintenance
+        // comme la vérification de l'intégrité ou la réplication des données
     }
 
     @Override
@@ -97,8 +108,16 @@ public class RedisTokenBlacklistAdapter implements TokenBlacklistRepository {
         // Conserver cette information pendant une période plus longue (7 jours)
         redisTemplate.opsForValue().set(userKey, value, 7, TimeUnit.DAYS);
 
-        // En pratique, il faudrait avoir un mécanisme pour enregistrer tous les tokens
-        // d'un utilisateur pour pouvoir les révoquer individuellement
+        // Dans une implémentation complète, on récupérerait tous les tokens de l'utilisateur
+        // depuis une table de mapping user -> tokens et on les blacklisterait un par un
+
+        // Pour l'exemple, on vérifie s'il y a des tokens associés à cet utilisateur
+        String userTokensKey = USER_TOKEN_PREFIX + userId;
+        if (redisTemplate.hasKey(userTokensKey)) {
+            // Dans une vraie implémentation, on récupérerait et révoquerait tous ces tokens
+            log.info("User tokens found and would be blacklisted here");
+        }
+
         securityMetrics.incrementUserBlacklisted();
         log.info("All tokens blacklisted for user: {}", userId);
     }
@@ -129,5 +148,26 @@ public class RedisTokenBlacklistAdapter implements TokenBlacklistRepository {
         }
 
         return null;
+    }
+
+    /**
+     * Associe un token à un utilisateur pour la gestion des sessions.
+     *
+     * @param userId L'ID de l'utilisateur
+     * @param token Le token JWT
+     * @param deviceInfo Informations sur l'appareil
+     */
+    public void registerUserToken(String userId, String token, String deviceInfo) {
+        String userTokensKey = USER_TOKEN_PREFIX + userId;
+        String tokenKey = token.substring(0, Math.min(token.length(), 32)); // Portion identifiable du token
+
+        // Dans une implémentation complète, on stockerait ces informations
+        // pour permettre la gestion fine des sessions
+        redisTemplate.opsForHash().put(userTokensKey, tokenKey, deviceInfo);
+
+        // On pourrait ajouter une expiration à cette entrée
+        redisTemplate.expire(userTokensKey, 30, TimeUnit.DAYS);
+
+        log.debug("Registered token for user: {}, device: {}", userId, deviceInfo);
     }
 }

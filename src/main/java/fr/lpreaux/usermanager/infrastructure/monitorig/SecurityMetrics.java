@@ -18,6 +18,9 @@ public class SecurityMetrics {
     private Counter tokenValidationCounter;
     private Counter tokenRefreshCounter;
     private Counter logoutCounter;
+    private Counter blacklistedTokensCounter;
+    private Counter rejectedTokensCounter;
+    private Counter userBlacklistedCounter;
 
     @PostConstruct
     public void initCounters() {
@@ -40,6 +43,18 @@ public class SecurityMetrics {
         logoutCounter = Counter.builder("auth.logout")
                 .description("Number of logouts")
                 .register(meterRegistry);
+
+        blacklistedTokensCounter = Counter.builder("auth.token.blacklisted")
+                .description("Number of tokens added to blacklist")
+                .register(meterRegistry);
+
+        rejectedTokensCounter = Counter.builder("auth.token.rejected")
+                .description("Number of rejected tokens due to blacklisting")
+                .register(meterRegistry);
+
+        userBlacklistedCounter = Counter.builder("auth.user.blacklisted")
+                .description("Number of users with all tokens blacklisted")
+                .register(meterRegistry);
     }
 
     public void incrementLoginSuccess() {
@@ -60,5 +75,17 @@ public class SecurityMetrics {
 
     public void incrementLogout() {
         logoutCounter.increment();
+    }
+
+    public void incrementBlacklistedTokens() {
+        blacklistedTokensCounter.increment();
+    }
+
+    public void incrementRejectedTokens() {
+        rejectedTokensCounter.increment();
+    }
+
+    public void incrementUserBlacklisted() {
+        userBlacklistedCounter.increment();
     }
 }

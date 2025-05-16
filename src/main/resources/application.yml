@@ -26,8 +26,23 @@ security:
   jwt:
     token:
       secret-key: ${JWT_SECRET_KEY:your-secret-key-with-at-least-32-characters}
+      encryption-key: ${JWT_ENCRYPTION_KEY:your-encryption-key-with-at-least-32-characters}
       expire-length-ms: ${JWT_EXPIRE_LENGTH:3600000}  # 1 heure
       refresh-expire-length-ms: ${JWT_REFRESH_EXPIRE_LENGTH:604800000}  # 7 jours
+  brute-force-protection:
+    enabled: true
+    ip-max-attempts: 10
+    username-max-attempts: 5
+    session-max-attempts: 3
+    initial-block-duration-minutes: 5
+    max-block-duration-hours: 24
+    block-multiplier: 2
+  headers:
+    content-security-policy: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'"
+    referrer-policy: "strict-origin-when-cross-origin"
+    feature-policy: "camera 'none'; microphone 'none'; geolocation 'none'; payment 'none'"
+    permissions-policy: "camera=(), microphone=(), geolocation=(), payment=()"
+
 
 # Server Configuration
 server:

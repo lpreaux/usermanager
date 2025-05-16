@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -18,6 +19,7 @@ import java.util.function.Function;
  * Implémentation de JwtTokenProvider utilisant la bibliothèque jjwt.
  */
 @Component
+@Primary
 @Slf4j
 public class JwtTokenProviderImpl implements JwtTokenProvider {
 
