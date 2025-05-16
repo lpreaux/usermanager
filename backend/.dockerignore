@@ -6,9 +6,9 @@
 *.iml
 *.ipr
 target
-backend/.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.jar
 README.md
 docker-compose.yml
 deploy.sh
 .dockerignore
-Dockerfile
+dockerfile
