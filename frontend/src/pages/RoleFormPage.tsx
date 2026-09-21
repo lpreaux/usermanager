@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { roleService, type CreateRoleRequest, type UpdateRoleRequest } from '../services/api';
+import { getErrorMessage } from '../utils/error';
 
 // Liste des permissions disponibles (à adapter en fonction de votre application)
 const availablePermissions = [
@@ -127,9 +128,9 @@ const RoleFormPage = () => {
             }
 
             navigate('/roles');
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erreur lors de l\'opération:', error);
-            toast.error(error.response?.data?.message || 'Erreur lors de l\'opération');
+            toast.error(getErrorMessage(error, 'Erreur lors de l\'opération'));
         } finally {
             setIsLoading(false);
         }

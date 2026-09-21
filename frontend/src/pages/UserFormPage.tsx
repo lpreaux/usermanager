@@ -6,6 +6,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { userService, type RegisterUserRequest, type UpdatePersonalInfoRequest } from '../services/api';
+import { getErrorMessage } from '../utils/error';
 
 // Schéma de validation pour la création d'utilisateur
 const createUserSchema = z.object({
@@ -52,7 +53,6 @@ const UserFormPage = () => {
     const navigate = useNavigate();
     const isEditMode = !!id;
     const [isLoading, setIsLoading] = useState(false);
-    const [user, setUser] = useState<any>(null);
 
     // Formulaire pour la création d'utilisateur
     const createForm = useForm<CreateUserFormValues>({
@@ -97,8 +97,6 @@ const UserFormPage = () => {
                 try {
                     const response = await userService.getUserById(id);
                     const userData = response.data;
-                    setUser(userData);
-
                     // Mise à jour du formulaire d'édition
                     updateForm.reset({
                         lastName: userData.lastName,
@@ -135,9 +133,9 @@ const UserFormPage = () => {
             const response = await userService.registerUser(userData);
             toast.success('Utilisateur créé avec succès');
             navigate(`/users/${response.data.id}`);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erreur lors de la création de l\'utilisateur:', error);
-            toast.error(error.response?.data?.message || 'Erreur lors de la création de l\'utilisateur');
+            toast.error(getErrorMessage(error, 'Erreur lors de la création de l\'utilisateur'));
         } finally {
             setIsLoading(false);
         }
@@ -158,9 +156,9 @@ const UserFormPage = () => {
             await userService.updatePersonalInfo(id, updateData);
             toast.success('Informations mises à jour avec succès');
             navigate(`/users/${id}`);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erreur lors de la mise à jour:', error);
-            toast.error(error.response?.data?.message || 'Erreur lors de la mise à jour');
+            toast.error(getErrorMessage(error, 'Erreur lors de la mise à jour'));
         } finally {
             setIsLoading(false);
         }

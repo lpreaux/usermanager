@@ -19,7 +19,7 @@ echo "==================================================="
 # Configuration spécifique à l'environnement
 case $ENV in
     dev)
-        ENV_FILE=".env.dev"
+        ENV_FILE="${ENV_FILE:-.env}"
         # En dev, on utilise docker-compose.yml et docker-compose.override.yml (implicitement)
         COMPOSE_CMD="docker compose"
         # Variables pour le développement
@@ -27,7 +27,7 @@ case $ENV in
         export VOLUME_PREFIX="dev-"
         ;;
     prod)
-        ENV_FILE=".env.prod"
+        ENV_FILE="${ENV_FILE:-.env}"
         # En prod, on utilise explicitement docker-compose.yml et docker-compose.prod.yml
         COMPOSE_CMD="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
         # Variables pour la production
@@ -42,9 +42,11 @@ if [ ! -f "$ENV_FILE" ]; then
     exit 1
 fi
 
-# Copier le fichier d'environnement approprié vers .env
+# Copier un fichier alternatif vers .env si ENV_FILE le demande.
 echo "Utilisation du fichier d'environnement: $ENV_FILE"
-cp "$ENV_FILE" .env
+if [ "$ENV_FILE" != ".env" ]; then
+    cp "$ENV_FILE" .env
+fi
 
 # Vérifier si les variables contiennent des caractères $ qui pourraient causer des problèmes
 if grep -q '\$' .env; then
@@ -234,5 +236,5 @@ if [ "$ENV" = "dev" ]; then
     echo "  - enhanced-search: ${FEATURE_ENHANCED_SEARCH:-true}"
     echo "  - beta-features: ${FEATURE_BETA_FEATURES:-true}"
     echo ""
-    echo "Pour désactiver un feature flag en développement, modifiez .env.dev"
+    echo "Pour désactiver un feature flag en développement, modifiez votre fichier .env local"
 fi

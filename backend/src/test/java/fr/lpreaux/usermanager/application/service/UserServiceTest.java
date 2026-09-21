@@ -4,7 +4,9 @@ import fr.lpreaux.usermanager.application.exception.*;
 import fr.lpreaux.usermanager.application.port.in.RegisterUserUseCase.RegisterUserCommand;
 import fr.lpreaux.usermanager.application.port.in.UpdateUserUseCase.*;
 import fr.lpreaux.usermanager.application.port.in.UserQueryUseCase.UserDetailsDTO;
+import fr.lpreaux.usermanager.application.port.out.RoleRepository;
 import fr.lpreaux.usermanager.application.port.out.UserRepository;
+import fr.lpreaux.usermanager.domain.model.Role;
 import fr.lpreaux.usermanager.domain.model.User;
 import fr.lpreaux.usermanager.domain.model.valueobject.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +40,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private RoleRepository roleRepository;
+
     @InjectMocks
     private UserService userService;
 
@@ -48,6 +53,9 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
+
+        Role defaultRole = Role.create("USER", "Default user role");
+        lenient().when(roleRepository.findByName("USER")).thenReturn(Optional.of(defaultRole));
 
         validCommand = new RegisterUserCommand(
                 "john.doe",
@@ -274,15 +282,15 @@ class UserServiceTest {
 
     @ParameterizedTest
     @CsvSource({
-            "SecureP1!, 8, true",   // Longueur minimale
-            "P@ss123, 7, false",    // Trop court
+            "SecureP1!, true",   // Longueur minimale
+            "P@ss123, false",    // Trop court
             "NoDigit!, false",      // Sans chiffre
             "nouppercase123!, false", // Sans majuscule
             "NOLOWERCASE123!, false", // Sans minuscule
             "Password123, false"    // Sans caractère spécial
     })
     @DisplayName("Should validate password requirements")
-    void shouldValidatePasswordRequirements(String password, int length, boolean isValid) {
+    void shouldValidatePasswordRequirements(String password, boolean isValid) {
         if (isValid) {
             assertThat(Password.of(password)).isNotNull();
         } else {

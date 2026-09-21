@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { userService, roleService, type RoleDTO } from '../../../services/api';
@@ -20,7 +20,7 @@ const UserRoleManager = ({ userId }: UserRoleManagerProps) => {
     });
 
     // Récupérer les rôles de l'utilisateur
-    const fetchUserRoles = async () => {
+    const fetchUserRoles = useCallback(async () => {
         try {
             const response = await userService.getUserRoles(userId);
             const rolesList = response.data || [];
@@ -35,11 +35,11 @@ const UserRoleManager = ({ userId }: UserRoleManagerProps) => {
             console.error('Erreur lors de la récupération des rôles de l\'utilisateur:', error);
             toast.error('Erreur lors de la récupération des rôles');
         }
-    };
+    }, [userId]);
 
     useEffect(() => {
         fetchUserRoles();
-    }, [userId]);
+    }, [fetchUserRoles]);
 
     // Assigner un rôle à l'utilisateur
     const handleAssignRole = async () => {

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { userService, type ChangePasswordRequest } from '../../../services/api';
+import { getErrorMessage } from '../../../utils/error';
 
 // Schéma de validation pour le changement de mot de passe
 const passwordChangeSchema = z.object({
@@ -55,8 +56,8 @@ const PasswordChangeForm = ({ userId, onSuccess }: PasswordChangeFormProps) => {
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erreur lors du changement de mot de passe');
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, 'Erreur lors du changement de mot de passe'));
     } finally {
       setIsLoading(false);
     }

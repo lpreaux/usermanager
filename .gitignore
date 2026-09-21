@@ -24,14 +24,9 @@ frontend/coverage/
 frontend/.pnpm-store/
 frontend/.vite/
 
-# Fichiers d'environnement
-.env
-.env.local
-.env.*.local
-
-# Mais conserver les modèles
-!.env.dev
-!.env.prod
+# Fichiers d'environnement (les modèles factices restent versionnés)
+.env*
+!.env.example
 
 # Dossiers et fichiers générés
 target/

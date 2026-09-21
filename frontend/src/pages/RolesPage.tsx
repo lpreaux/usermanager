@@ -21,7 +21,7 @@ const RolesPage = () => {
             await roleService.deleteRole(id);
             toast.success('Rôle supprimé avec succès');
             refetch();
-        } catch (error) {
+        } catch {
             toast.error('Erreur lors de la suppression');
         } finally {
             setIsDeleting(false);

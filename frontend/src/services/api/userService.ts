@@ -1,4 +1,4 @@
-import { apiClient } from './index';
+import { apiClient } from './client';
 
 export interface UserResponse {
     id: string;
@@ -10,6 +10,12 @@ export interface UserResponse {
     isAdult: boolean;
     emails: string[];
     phoneNumbers: string[];
+}
+
+interface UserCollectionResponse {
+    _embedded?: {
+        userResponseList: UserResponse[];
+    };
 }
 
 export interface RegisterUserRequest {
@@ -43,7 +49,7 @@ export interface ChangePasswordRequest {
 
 export const userService = {
     getAllUsers: async () => {
-        return await apiClient.get('/users');
+        return await apiClient.get<UserCollectionResponse>('/users');
     },
 
     getUserById: async (userId: string) => {

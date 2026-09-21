@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { userService, type AddEmailRequest, type AddPhoneNumberRequest } from '../../../services/api';
+import { getErrorMessage } from '../../../utils/error';
 
 // Schémas de validation
 const emailSchema = z.object({
@@ -52,8 +53,8 @@ const UserContactManager = ({ userId, emails, phoneNumbers = [], onUpdate }: Use
             emailForm.reset();
             setIsAddingEmail(false);
             onUpdate();
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Erreur lors de l\'ajout de l\'email');
+        } catch (error: unknown) {
+            toast.error(getErrorMessage(error, 'Erreur lors de l\'ajout de l\'email'));
         } finally {
             setIsProcessing(false);
         }
@@ -71,8 +72,8 @@ const UserContactManager = ({ userId, emails, phoneNumbers = [], onUpdate }: Use
             await userService.removeEmail(userId, email);
             toast.success('Email supprimé avec succès');
             onUpdate();
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Erreur lors de la suppression de l\'email');
+        } catch (error: unknown) {
+            toast.error(getErrorMessage(error, 'Erreur lors de la suppression de l\'email'));
         } finally {
             setIsProcessing(false);
         }
@@ -88,8 +89,8 @@ const UserContactManager = ({ userId, emails, phoneNumbers = [], onUpdate }: Use
             phoneForm.reset();
             setIsAddingPhone(false);
             onUpdate();
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Erreur lors de l\'ajout du numéro de téléphone');
+        } catch (error: unknown) {
+            toast.error(getErrorMessage(error, 'Erreur lors de l\'ajout du numéro de téléphone'));
         } finally {
             setIsProcessing(false);
         }
@@ -102,8 +103,8 @@ const UserContactManager = ({ userId, emails, phoneNumbers = [], onUpdate }: Use
             await userService.removePhoneNumber(userId, phoneNumber);
             toast.success('Numéro de téléphone supprimé avec succès');
             onUpdate();
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Erreur lors de la suppression du numéro de téléphone');
+        } catch (error: unknown) {
+            toast.error(getErrorMessage(error, 'Erreur lors de la suppression du numéro de téléphone'));
         } finally {
             setIsProcessing(false);
         }

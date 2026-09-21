@@ -10,13 +10,16 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_FLYWAY_ENABLED: true
       # Configuration Sentry
-      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_ENVIRONMENT: ${SPRING_PROFILES_ACTIVE:-dev}
       # Configuration PostHog
-      POSTHOG_API_KEY: ${POSTHOG_API_KEY}
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY:-}
       POSTHOG_HOST: ${POSTHOG_HOST:-https://eu.i.posthog.com}
       POSTHOG_ENABLED: ${POSTHOG_ENABLED:-true}
       POSTHOG_ENVIRONMENT: ${SPRING_PROFILES_ACTIVE:-dev}
+      # Secrets de signature et de chiffrement : aucun défaut faible n'est autorisé dans Compose.
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Renseignez JWT_SECRET_KEY dans votre fichier .env}
+      JWT_ENCRYPTION_KEY: ${JWT_ENCRYPTION_KEY:?Renseignez JWT_ENCRYPTION_KEY dans votre fichier .env}
       # Feature Flags
       FEATURE_FLAGS_ENABLED: ${FEATURE_FLAGS_ENABLED:-true}
     ports:

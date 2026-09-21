@@ -34,8 +34,10 @@ public class RoleEntity {
             joinColumns = @JoinColumn(name = "role_id")
     )
     @Column(name = "permission")
+    @Builder.Default
     private Set<String> permissions = new HashSet<>();
 
     @ManyToMany(mappedBy = "roles")
+    @Builder.Default
     private Set<UserEntity> users = new HashSet<>();
 }

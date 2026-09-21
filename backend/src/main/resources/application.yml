@@ -62,7 +62,7 @@ springdoc:
   paths-to-match: /api/**
 
 sentry:
-  dsn: https://baa699b68b71d63aecdef55f352eeed0@o4509312009109504.ingest.de.sentry.io/4509312013303888  # Obtenez ce DSN depuis votre compte Sentry
+  dsn: ${SENTRY_DSN:}
   traces-sample-rate: 1.0
   environment: undefined
   release: ${project.name}@${project.version}
