@@ -28,9 +28,12 @@ public class User {
     private final Name lastName;
     private final FirstName firstName;
     private final BirthDate birthDate;
-    private final List<Email> emails;
-    private final List<PhoneNumber> phoneNumbers;
-    private final Set<Role> roles;
+    @Builder.Default
+    private final List<Email> emails = Collections.emptyList();
+    @Builder.Default
+    private final List<PhoneNumber> phoneNumbers = Collections.emptyList();
+    @Builder.Default
+    private final Set<Role> roles = Collections.emptySet();
 
     /**
      * Creates a new user with the required information.

@@ -37,9 +37,11 @@ public class UserEntity {
     private LocalDate birthDate;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+    @Builder.Default
     private List<UserEmailEntity> emails = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+    @Builder.Default
     private List<UserPhoneNumberEntity> phoneNumbers = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -48,5 +50,6 @@ public class UserEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();
 }

@@ -12,6 +12,7 @@ import fr.lpreaux.usermanager.infrastructure.adapter.in.web.dto.request.*;
 import fr.lpreaux.usermanager.infrastructure.adapter.in.web.mapper.UserWebMapper;
 import fr.lpreaux.usermanager.infrastructure.adapter.out.analytics.AnalyticsService;
 import fr.lpreaux.usermanager.infrastructure.config.TestSecurityConfig;
+import fr.lpreaux.usermanager.infrastructure.security.BruteForceProtectionService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,15 @@ class UserControllerTest {
 
     @MockBean
     private AnalyticsService analyticsService;
+
+    @MockBean
+    private BruteForceProtectionService bruteForceProtectionService;
+
+    @MockBean
+    private AuthenticationUseCase authenticationUseCase;
+
+    @MockBean
+    private fr.lpreaux.usermanager.application.port.out.TokenBlacklistRepository tokenBlacklistRepository;
 
     @MockBean
     private RegisterUserUseCase registerUserUseCase;

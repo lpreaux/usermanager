@@ -30,7 +30,7 @@ const LoginPage = () => {
       } else {
         toast.error('Identifiants incorrects');
       }
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors de la connexion');
     } finally {
       setIsLoading(false);

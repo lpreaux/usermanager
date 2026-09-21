@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { userService } from '../services/api';
+import type { UserResponse } from '../services/api/userService';
 import toast from 'react-hot-toast';
 
 const UsersPage = () => {
@@ -21,7 +22,7 @@ const UsersPage = () => {
       await userService.deleteUser(id);
       toast.success('Utilisateur supprimé avec succès');
       refetch();
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors de la suppression');
     } finally {
       setIsDeleting(false);
@@ -57,7 +58,7 @@ const UsersPage = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.map((user: any) => (
+            {data?.map((user: UserResponse) => (
               <tr key={user.id}>
                 <td>{user.login}</td>
                 <td>{user.lastName}</td>

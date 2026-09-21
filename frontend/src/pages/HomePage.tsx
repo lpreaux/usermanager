@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const HomePage = () => {
   return (
     <div className="hero min-h-96 bg-base-200 rounded-lg">
@@ -7,7 +9,7 @@ const HomePage = () => {
           <p className="py-6">
             Application de gestion d'utilisateurs avec architecture hexagonale en Spring Boot et React.
           </p>
-          <button className="btn btn-primary">Get Started</button>
+          <Link to="/login" className="btn btn-primary">Commencer</Link>
         </div>
       </div>
     </div>
